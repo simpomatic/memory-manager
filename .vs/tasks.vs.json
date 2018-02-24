@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskName": "task-MemoryManager",
+      "appliesTo": "v1.1/MemoryManager.c",
+      "type": "launch"
+    }
+  ]
+}
