@@ -47,12 +47,21 @@ void *my_alloc(int size)
       // Make sure we have enough meaningful space to honor this allocation.
       if (remainingSpace >= size)
       {
-        // Offset free head by size of overhead, pointer size, and the desired amount of memory
-        free_head = currentBlock + (_overheadSize + size);
-        (*free_head).block_size = freeSpace - (_overheadSize + size);
+        // If there is enough meaningful space to split the current block, split it.
+        if((remainingSpace - size) >= sizeof(_pointerSize)) {
+          // Offset free head by size of overhead, pointer size, and the desired amount of memory
+          free_head = currentBlock + (_overheadSize + size);
+          (*free_head).block_size = freeSpace - (_overheadSize + size);
+          (*currentBlock).block_size = size;
+        } 
+        // Not enough meaningful space is available to justify splitting the block
+        else {
+          free_head = 0;
+          (*free_head).block_size = freeSpace - remainingSpace;
+          (*currentBlock).block_size = remainingSpace;
+        }
 
         // Assign values to the allocated block
-        (*currentBlock).block_size = size;
         (*currentBlock).next_block = free_head;
         return (void *) (currentBlock + _overheadSize);
       } else {
@@ -75,12 +84,39 @@ void *my_alloc(int size)
         // The current block is the head of the free list; therefore, simply redirect the free head to
         // the next block in the chain.
         if (counter == 0) {
-          free_head = (*currentBlock).next_block;
-          (*free_head).block_size = freeSpace - (_overheadSize + size);
+          // If there is enough meaningful space to split the current block, split it.
+          if((remainingSpace - size) >= sizeof(_pointerSize)) {
+            // Offset free head by size of overhead, pointer size, and the desired amount of memory
+            free_head = currentBlock + (_overheadSize + size);
+            (*free_head).block_size = freeSpace - (_overheadSize + size);
+            (*currentBlock).block_size = size;
+            (*currentBlock).next_block = currentBlock + (_overheadSize + size);
+          } 
+          // Not enough meaningful space is available to justify splitting the block
+          else {
+            free_head = (*currentBlock).next_block;
+            (*free_head).block_size = freeSpace - remainingSpace;
+            (*currentBlock).block_size = remainingSpace;
+          }
         } 
         // The current block is not the first block in the free list; therefore, redirect the previous
         // block in the change to the next free block in the chain and do not change the free header.
         else {
+          // If there is enough meaningful space to split the current block, split it.
+          if((remainingSpace - size) >= sizeof(_pointerSize)) {
+            // Offset free head by size of overhead, pointer size, and the desired amount of memory
+            free_head = currentBlock + (_overheadSize + size);
+            (*free_head).block_size = freeSpace - (_overheadSize + size);
+            (*currentBlock).block_size = size;
+            (*currentBlock).next_block = currentBlock + (_overheadSize + size);
+          } 
+          // Not enough meaningful space is available to justify splitting the block
+          else {
+            free_head = (*currentBlock).next_block;
+            (*free_head).block_size = freeSpace - remainingSpace;
+            (*currentBlock).block_size = remainingSpace;
+          }
+
           previousBlock = (*currentBlock).next_block;
           (*free_head).block_size = freeSpace - (_overheadSize + size);
         }
