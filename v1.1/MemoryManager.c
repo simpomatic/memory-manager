@@ -15,9 +15,6 @@ void my_initialize_heap(int size)
 {
   free_head = (struct Block*) malloc(size);
   (*free_head).block_size = size;
-  //printf("%s\n", "Initialize Heap:");
-  //printf("%p\n", free_head);
-  //printf("%d\n", (*free_head).block_size);
 }
 
 void *my_alloc(int size)
@@ -27,14 +24,10 @@ void *my_alloc(int size)
   // point to the next available block of memory instead of pointing at memory that is now in use.
   int counter = 0;
   int freeSpace = (*free_head).block_size;
-  //printf("%d\n", freeSpace);
   struct Block *currentBlock = free_head;
-  //printf("%p\n", currentBlock);
-  //printf("%p\n", (*currentBlock).next_block);
   struct Block *previousBlock;
   while (!0)
   {
-    //printf("%d\n", (*currentBlock).block_size);
     int remainingSpace = (*currentBlock).block_size;
 
     // A pointer that points to nothing will be equal to zero, and !0 is always true.
@@ -56,7 +49,6 @@ void *my_alloc(int size)
         if (counter == 0) {
           // If there is enough meaningful space to split the current block, split it.
           if((remainingSpace - size) >= sizeof(_pointerSize)) {
-            //printf("%s\n","Got here. Next block is null and split");
             // Offset free head by size of overhead, pointer size, and the desired amount of memory
             free_head = currentBlock + (_overheadSize + size);
             (*free_head).block_size = freeSpace - (_overheadSize + size);
@@ -65,7 +57,6 @@ void *my_alloc(int size)
           } 
           // Not enough meaningful space is available to justify splitting the block
           else {
-            //printf("%s\n","Got here. Next block is null and no split");
             free_head = 0;
             (*free_head).block_size = freeSpace - remainingSpace;
             (*currentBlock).block_size = remainingSpace;
@@ -75,7 +66,6 @@ void *my_alloc(int size)
         else {
           // If there is enough meaningful space to split the current block, split it.
           if((remainingSpace - size) >= sizeof(_pointerSize)) {
-            //printf("%s\n","Got here. Next block is null and split and is not the front of free list");
             // Offset free head by size of overhead, pointer size, and the desired amount of memory
             (*currentBlock).block_size = size;
             (*previousBlock).next_block = currentBlock + (_overheadSize + size);
@@ -83,7 +73,6 @@ void *my_alloc(int size)
           } 
           // Not enough meaningful space is available to justify splitting the block
           else {
-            //printf("%s\n","Got here. Next block is null and no split and is not the front of free list");
             (*currentBlock).block_size = remainingSpace;
             (*previousBlock).next_block = (*currentBlock).next_block;
           }
@@ -114,7 +103,6 @@ void *my_alloc(int size)
         if (counter == 0) {
           // If there is enough meaningful space to split the current block, split it.
           if((remainingSpace - size) >= sizeof(_pointerSize)) {
-            //printf("%s\n","Got here. First in free head, Next block is not null and split");
             // Offset free head by size of overhead, pointer size, and the desired amount of memory
             free_head = currentBlock + (_overheadSize + size);
             (*free_head).block_size = remainingSpace - size;
@@ -123,7 +111,6 @@ void *my_alloc(int size)
           } 
           // Not enough meaningful space is available to justify splitting the block
           else {
-            //printf("%s\n","Got here. First in free head, Next block is not null and no split");
             free_head = (*currentBlock).next_block;
             (*currentBlock).block_size = remainingSpace;
           }
@@ -133,7 +120,6 @@ void *my_alloc(int size)
         else {
           // If there is enough meaningful space to split the current block, split it.
           if((remainingSpace - size) >= sizeof(_pointerSize)) {
-            //printf("%s\n","Got here. Next block is not null and split");
             // Offset free head by size of overhead, pointer size, and the desired amount of memory
             free_head = currentBlock + (_overheadSize + size);
             (*currentBlock).block_size = size;
@@ -141,7 +127,6 @@ void *my_alloc(int size)
           } 
           // Not enough meaningful space is available to justify splitting the block
           else {
-            //printf("%s\n","Got here. Next block is not null and no split");
             (*currentBlock).block_size = remainingSpace;
           }
 
@@ -152,7 +137,6 @@ void *my_alloc(int size)
       } 
       // If there is not enough space, check the following block
       else {
-        //printf("%s\n","Got here. Free block was too small get next block");
         previousBlock = currentBlock;
         currentBlock = (*currentBlock).next_block;
         ++counter;
